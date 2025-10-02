@@ -112,10 +112,10 @@ class _CaptureImageScreenState extends State<CaptureImageScreen> {
 
       final response = await http.post(
         Uri.parse(
-            'https://serverless.roboflow.com/infer/workflows/acne-chuchu/custom-workflow'),
+            'https://serverless.roboflow.com/infer/workflows/code-qjcxw/custom-workflow'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'api_key': "JoOdfUCYsESQE8HtUrxg",
+          'api_key': "LGJpUgdRWaxjZJILrf7F",
           'inputs': {
             'image': {'type': 'base64', 'value': base64Image}
           }
