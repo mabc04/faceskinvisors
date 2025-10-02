@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:faceskinvisors/TestModel.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
 import 'TestModel2.dart';
 
 class ResultPage extends StatelessWidget {
@@ -36,6 +35,12 @@ class ResultPage extends StatelessWidget {
         ? objectCounts!.first!
         : 0;
 
+    // For now, hardcoded condition (later replace with your detection logic)
+    final String detectedCondition = "Blackheads".trim();
+
+    // 🔍 Debugging
+    print("DEBUG → detectedCondition = '$detectedCondition'");
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -53,6 +58,8 @@ class ResultPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // 📷 Image preview
               AspectRatio(
                 aspectRatio: 3 / 4,
                 child: Container(
@@ -74,7 +81,94 @@ class ResultPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // 🔥 Firestore fetch
+              FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection("Conditions")
+                    .doc(detectedCondition) // ✅ trimmed
+                    .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text("❌ Error: ${snapshot.error}");
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return const Text("⚠️ No document found");
+                  }
+
+                  var data = snapshot.data!.data() as Map<String, dynamic>?;
+
+                  if (data == null) {
+                    return const Text("⚠️ Document is empty");
+                  }
+
+                  // 🔍 Debugging Firestore data
+                  print("DEBUG → Firestore data: $data");
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data["Name"] ?? "Unknown Condition",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        data["Description"] ?? "No description available",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Recommendation:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        data["Recommendation"] ??
+                            "No recommendation available",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Cause:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      // ✅ Cause list rendering
+                      ...(data["Cause"] is List
+                          ? (data["Cause"] as List<dynamic>).map((cause) {
+                              return Text(
+                                "- $cause",
+                                style: const TextStyle(fontSize: 16),
+                              );
+                            }).toList()
+                          : [
+                              const Text(
+                                "No causes available",
+                                style: TextStyle(fontSize: 16),
+                              )
+                            ]),
+                    ],
+                  );
+                },
+              ),
+
               const SizedBox(height: 30),
+
+              // Retry button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -98,7 +192,6 @@ class ResultPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
             ],
           ),
         ),
