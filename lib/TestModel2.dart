@@ -17,7 +17,7 @@ class _TestModel2State extends State<TestModel2> {
         Widget _buildLegendBox(Color color, String label) {
         return Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: [ 
             Container(
                 width: 20,
                 height: 20,
@@ -67,7 +67,7 @@ class _TestModel2State extends State<TestModel2> {
         final base64Image = base64Encode(bytes);
 
         final response = await http.post(
-          Uri.parse('https://serverless.roboflow.com/infer/workflows/acne-chuchu/custom-workflow'),
+          Uri.parse('https://serverless.roboflow.com/infer/workflows/code-qjcxw/custom-workflow'),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'api_key': "JoOdfUCYsESQE8HtUrxg",
